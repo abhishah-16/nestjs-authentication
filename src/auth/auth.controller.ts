@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 
@@ -7,7 +8,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('signup')
-  signup(@Body() dto: AuthDto) {
+  signup(@Body() dto: Prisma.userCreateInput) {
     return this.authService.signup(dto)
   }
 
