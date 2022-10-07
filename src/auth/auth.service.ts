@@ -3,10 +3,15 @@ import { PrismaService } from 'prisma/prisma.service';
 import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private jwt: JwtService
+    ) { }
 
     async signup(dto: Prisma.userCreateInput) {
         const { name, email, password } = dto
@@ -28,9 +33,25 @@ export class AuthService {
         })
         return user
     }
-    async signin() {
-
+    async signin(dto: AuthDto, req: Request, res: Response) {
+        const { email, password } = dto
+        const foundUser = await this.prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+        if (!foundUser) {
+            throw new BadRequestException('Invalid Credentials')
+        }
+        const isMatch = await this.comparePassword(password, foundUser.password)
+        if (!isMatch) {
+            throw new BadRequestException('Invalid Credentials')
+        }
+        const token = await this.signToken(foundUser.id, foundUser.email)
+        res.cookie('token', token)
+        res.send({ message: 'successfully login' })
     }
+
     async signout() {
 
     }
@@ -38,5 +59,19 @@ export class AuthService {
     async hashpassword(password: string) {
         const hash = await bcrypt.hash(password, 12)
         return hash
+    }
+
+    async comparePassword(password: string, hash: string) {
+        return await bcrypt.compare(password, hash)
+    }
+
+    async signToken(id: string, email: string) {
+        const payload = {
+            id, email
+        }
+        const token = this.jwt.sign(payload, {
+            secret: process.env.JWT_SECRET
+        })
+        return token
     }
 }
