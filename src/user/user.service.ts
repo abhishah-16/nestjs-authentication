@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 
@@ -18,7 +18,14 @@ export class UserService {
   }
 
   async findOne(id: string) {
-    const users = await this.prisma.user.findMany()
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id
+      }
+    })
+    if (!user) {
+      throw new BadRequestException('User does not exists')
+    }
+    return user
   }
-
 }
