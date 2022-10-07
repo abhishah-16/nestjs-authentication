@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Request } from 'express';
 import { PrismaService } from 'prisma/prisma.service';
 
 
@@ -17,15 +18,20 @@ export class UserService {
     return users
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, req: Request) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: id
       }
     })
     if (!user) {
-      throw new BadRequestException('User does not exists')
+      throw new NotFoundException('User does not exists')
     }
+    const decodeUser = req.user as { id: string, email: string }
+    if (user.id !== decodeUser.id) {
+      throw new ForbiddenException()
+    }
+    delete user.password
     return user
   }
 }
