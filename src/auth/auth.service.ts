@@ -10,8 +10,14 @@ import { Request, Response } from 'express';
 export class AuthService {
     constructor(
         private prisma: PrismaService,
-        private jwt: JwtService
-    ) { }
+        private jwt: JwtService,
+    ) {
+        prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
+            console.log('Query: ' + event.query)
+            console.log('Params: ' + event.params)
+            console.log('Duration: ' + event.duration + 'ms')
+        });
+    }
 
     async signup(dto: Prisma.userCreateInput) {
         const { name, email, password } = dto
