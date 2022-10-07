@@ -49,11 +49,12 @@ export class AuthService {
         }
         const token = await this.signToken(foundUser.id, foundUser.email)
         res.cookie('token', token)
-        res.send({ message: 'successfully login' })
+        res.send({ message: ' Logged in successfully :) ' })
     }
 
-    async signout() {
-
+    async signout(req: Request, res: Response) {
+        res.clearCookie('token')
+        res.send({ message: ' Logged out successfully :( ' })
     }
 
     async hashpassword(password: string) {
