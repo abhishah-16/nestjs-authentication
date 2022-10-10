@@ -13,8 +13,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  getUser(@Param('id') id: string,@Req() req) {
-    return this.userService.findOne(id,req);
+  getUser(@Param('id') id: string, @Req() req) {
+    return this.userService.findOne(id, req);
   }
-
 }
