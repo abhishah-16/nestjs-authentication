@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
+import "colors"
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
         private jwt: JwtService,
     ) {
         prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
-            console.log('Query: ' + event.query)
+            console.log(`Query: ${event.query}`.bgBlack.red)
             console.log('Params: ' + event.params)
             console.log('Duration: ' + event.duration + 'ms')
         });
